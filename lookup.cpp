@@ -11,8 +11,12 @@ string ip;
 
 void curl(string what)
 {
+    // Curl entered thing
+    
     system(("curl https://ipapi.co/" + ip + "/" + what + "/ 2>nul > " + what + ".txt").c_str());
 
+    // Adds the output to Vector "result"
+    
     ifstream file(what + ".txt");
 
     if (file.is_open())
@@ -34,12 +38,16 @@ void curl(string what)
 
 int main(int argc, char** argv)
 {
+    // Get IP entered (<ip-address>)
+    
     if (argc == 1)
     {
         cout << "Syntax: lookup.exe <ip-addr>";
         return 0;
     }
     ip = argv[1];
+    
+    // Start a Thread for every "thing" (because its faster)
     
     thread country(curl, "country");
     thread city(curl, "city");
@@ -49,7 +57,7 @@ int main(int argc, char** argv)
     thread currency(curl, "currency");
     thread languages(curl, "languages");
     
-    // Wait for Threads
+    // Wait for the Threads to finish
     
     country.join();
     city.join();
@@ -61,12 +69,11 @@ int main(int argc, char** argv)
     
     // Output Vector
     
-    for (int i = 0; i < result.size(); i++)
-    {
-        cout << "\n" << result[i];
+    for (int i = 0; i < result.size(); i++) 
+    { 
+        cout << "\n" << result[i]; 
     }
-
+    
     cout << "\n";
-
     return 0;
 }
