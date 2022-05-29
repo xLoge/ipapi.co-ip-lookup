@@ -8,15 +8,12 @@ using namespace std;
 
 vector<string> result;
 string ip;
+bool invalid_ip = false;
 
 void curl(string what)
 {
-    // Curl entered thing
-    
     system(("curl https://ipapi.co/" + ip + "/" + what + "/ 2>nul > " + what + ".txt").c_str());
 
-    // Adds the output to Vector "result"
-    
     ifstream file(what + ".txt");
 
     if (file.is_open())
@@ -27,10 +24,17 @@ void curl(string what)
         file.close();
         remove((what + ".txt").c_str());
         
-        save = what + ": " + save;
-        result.push_back(save);
-
-        return;
+        if (save == "Undefined")
+        {
+            invalid_ip = true;
+            return;
+        }
+        else
+        {
+            save = what + ": " + save + "\n";
+            result.push_back(save);
+            return;
+        }
     }
     else
         return;
@@ -38,16 +42,13 @@ void curl(string what)
 
 int main(int argc, char** argv)
 {
-    // Get IP entered (<ip-address>)
-    
     if (argc == 1)
     {
         cout << "Syntax: lookup.exe <ip-addr>";
         return 0;
     }
-    ip = argv[1];
     
-    // Start a Thread for every "thing" (because its faster)
+    ip = argv[1];
     
     thread country(curl, "country");
     thread city(curl, "city");
@@ -57,7 +58,7 @@ int main(int argc, char** argv)
     thread currency(curl, "currency");
     thread languages(curl, "languages");
     
-    // Wait for the Threads to finish
+    // Wait for Threads
     
     country.join();
     city.join();
@@ -69,11 +70,17 @@ int main(int argc, char** argv)
     
     // Output Vector
     
-    for (int i = 0; i < result.size(); i++) 
-    { 
-        cout << "\n" << result[i]; 
+    if (!invalid_ip)
+    {
+        for (int i = 0; i < result.size(); i++)
+        {
+            cout << result[i];
+        }
+        return 0;
     }
-    
-    cout << "\n";
-    return 0;
+    else
+    {
+        cout << "IP is invalid.";
+        return 1;
+    }
 }
